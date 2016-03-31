@@ -1,0 +1,35 @@
+#!/usr/bin/expect  -f 
+#----------------------------------------
+#   Desc: ssh execute command remotely
+#   Date: 2014-02-14
+#   Author: elmer
+#----------------------------------------
+
+#exp_internal 1
+#set timeout -1 
+set timeout 300
+
+if { [llength $argv] < 3} {
+    puts "usage: $argv0  cmd user passwd ip "
+        exit 1
+}
+
+set comm [lindex $argv 0]
+set user [lindex $argv 1]
+set pass [lindex $argv 2]
+set ip   [lindex $argv 3]
+
+spawn /usr/bin/ssh -q -p22 $ip  -l$user
+
+for {} {1} {} {
+    expect {
+        "yes/no)?" { send "yes\r"}
+        "assword" { send "$pass\r"}
+        "\[#$>]" { break }
+        "failed" { exit 1 }
+        "timeout" { exit 1}
+    }
+}
+
+send "$comm\r"
+expect "\[#$>]" { send "exit\r"}
