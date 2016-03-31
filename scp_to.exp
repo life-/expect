@@ -1,0 +1,29 @@
+#!/usr/bin/expect
+#------------------------------------------
+#   Desc: scp local file to remote dir
+#   Date: 2014-02-14
+#   Author: elmer
+#------------------------------------------
+
+if {$argc < 5} {
+    puts "Usage: $argv0 local_file ip user passwd dir"
+        exit 1
+}
+
+set local_file [lindex $argv 0]
+set machine_ip [lindex $argv 1]
+set login_user [lindex $argv 2]
+set password [lindex $argv 3]
+set target_dir [lindex $argv 4]
+set timeout 3600
+
+# Scp packages to target machine
+spawn scp -q $local_file $login_user@$machine_ip:$target_dir
+for {} {1} {} {
+    expect {
+        "yes/no)?" { send "yes\r" }
+        "assword:" { send "$password\r"}
+        eof { exit 0 }
+        timeout { exit 1 }
+    }
+}
